@@ -6,7 +6,9 @@ User-friendly package implementing GW waveform models in pure python, used in th
 ```bash
 PyWF/PyWF/
         ├── PyWF.py 
-                Core: implementation of some GW waveform models present in LALSimulation in pure Python, namely TaylorF2, IMRPhenomD, IMRPhenomD_NRTidalv2, IMRPhenomHM and IMRPhenomNSBH
+                Core: implementation of some GW waveform models present in 
+		LALSimulation in pure Python, namely TaylorF2, IMRPhenomD, 
+		IMRPhenomD_NRTidalv2, IMRPhenomHM and IMRPhenomNSBH
         ├── WFutils.py
 						Auxiliary functions: constants, conversions, spherical harmonics and parameter checks
         ├── PyWF_tutorial.ipynb
