@@ -10,9 +10,10 @@ PyWF/PyWF/
 		LALSimulation in pure Python, namely TaylorF2, IMRPhenomD, 
 		IMRPhenomD_NRTidalv2, IMRPhenomHM and IMRPhenomNSBH
         ├── WFutils.py
-						Auxiliary functions: constants, conversions, spherical harmonics and parameter checks
+		Auxiliary functions: constants, conversions, 
+		spherical harmonics and parameter checks
         ├── PyWF_tutorial.ipynb
-						Jupyter notebook with tutorial for the usage
+		Jupyter notebook with tutorial for the usage
         			
 ```		
 
