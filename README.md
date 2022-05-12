@@ -57,7 +57,8 @@ WF4Py.IMRPhenomD().Ampl(fgrids, **events)
 
 ## Testing
 The adherence of all the models with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>) is accuratly tested. As an example, we here report the comparison in the implementations of 
-![alt text](https://github.com/CosmoStatGW/WF4Py/blob/master/IMRPhenomHM_Comparison.pdf)
+
+![alt text](<https://github.com/CosmoStatGW/WF4Py/blob/master/IMRPhenomHM_Comparison.pdf>)
 
 ## Bibliography  
 1. A. Buonanno et al. (2009) [arXiv:0907.0700](<https://arxiv.org/abs/0907.0700>)
