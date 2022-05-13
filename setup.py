@@ -15,5 +15,5 @@ setuptools.setup(
     license='GNU GPLv3',
     python_requires='>=3.7',
     packages=setuptools.find_packages(),
-    install_requires=['numpy', 'scipy', 'abc', 'h5py'],
+    install_requires=['numpy', 'scipy', 'h5py'],
 )
