@@ -38,7 +38,7 @@ events = {'Mc':np.array([...]),
           'Lambda1':np.array([...]),
           'Lambda2':np.array([...])}
 ```
-where <span style="color:red">Mc</span> denotes the **chirp mass** (in units of *solar masses*), <span style="color:red">dL</span> the **luminosity distance** (in *Gpc*), <span style="color:red">iota</span> the **inclination angle**, <span style="color:red">eta</span> the **symmetric mass ratio**, <span style="color:red">chi1z</span> and <span style="color:red">chi2z</span> the **adimensional spin components** of the two objects aligned with the orbital angular momentum and <span style="color:red">Lambda1</span> and <span style="color:red"> Lambda2</span> the **adimensional tidal deformability** parameters of the objects in the tidal case.
+where <span style="color:red">```Mc```</span> denotes the **chirp mass** (in units of *solar masses*), <span style="color:red">```dL```</span> the **luminosity distance** (in *Gpc*), <span style="color:red">```iota```</span> the **inclination angle**, <span style="color:red">```eta```</span> the **symmetric mass ratio**, <span style="color:red">```chi1z```</span> and <span style="color:red">```chi2z```</span> the **adimensional spin components** of the two objects aligned with the orbital angular momentum and <span style="color:red">```Lambda1```</span> and <span style="color:red"> ```Lambda2```</span> the **adimensional tidal deformability** parameters of the objects in the tidal case.
 
 Any waveform can then be easily used e.g. as
 
