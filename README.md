@@ -3,25 +3,47 @@ User-friendly package implementing GW waveform models in pure python, thus enabl
 
 Developed by [Francesco Iacovelli](<https://github.com/FrancescoIacovelli>)
 
+This package is released together with the paper [](<>). When making use of it, please cite the paper and the present git repository. Bibtex:
+
+```
+@article{Iacovelli,
+    author = "Iacovelli, Francesco and Mancarella, Michele and Foffa, Stefano and Maggiore, Michele",
+    title = "{}",
+    eprint = "",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.CO",
+    month = "5",
+    year = "2022",
+}
+```
+
 ## Code Organization
 The organisation of the repository is the following:
 
-```bash
+```
 WF4Py/
-        ├── WF4Py.py
-            Core: implementation of some GW waveform models present in
+     ├── WF4Py.py
+            Core: implementation of various GW waveform models present in
 				LALSimulation in pure Python
-        ├── WFutils.py
+     ├── WFutils.py
 			Auxiliary functions: constants, conversions,
 				spherical harmonics and parameter checks
-        ├── WF4Py_tutorial.ipynb
+     ├── WF4Py_tutorial.ipynb
 			Jupyter notebook with tutorial for the usage
-        ├── WFfiles
-    		Folder containing some needed text filed
+     ├── WFfiles
+    		Folder containing some text files needed for waveform computation
 
 ```		
 
 ## Summary
+
+* [Overview and usage](https://github.com/CosmoStatGW/WF4Py#Overview-and-usage)
+* [Installation](https://github.com/CosmoStatGW/WF4Py#Installation)
+* [Available models](https://github.com/CosmoStatGW/WF4Py#Available-models)
+* [Testing](https://github.com/CosmoStatGW/WF4Py#Testing)
+* [Bibliography](https://github.com/CosmoStatGW/WF4Py#Bibliography)
+
+## Overview and usage
 Each waveform is a derived of the abstract class <span style="color:green">```WaveFormModel```</span>, and has built in functions <span style="color:blue">```Phi```</span>, <span style="color:blue">```Ampl```</span>, <span style="color:blue">```tau_star```</span> and <span style="color:blue">```fcut```</span> to compute the **phase**, **amplitude**, **time to coalescence** and **cut frequency**, respectively for the chosen catalog of events.
 
 The functions accept as inputs the catalog as well as the frequencies at at which the computation has to be performed.
@@ -48,17 +70,24 @@ WF4Py.IMRPhenomD().Ampl(fgrids, **events)
 
 #### For a detailed tutorial refer to ```WF4Py_tutorial.ipynb```
 
+## Installation
+To install the package without cloning the git repository simply run
+
+```
+pip install git+https://github.com/CosmoStatGW/WF4Py
+```
 ## Available models
 * (v1) <span style="color:green">```TaylorF2_RestrictedPN```</span> (1., 2., 3., 4.)
 * (v1) <span style="color:green">```IMRPhenomD```</span> (5., 6.)
 * (v1) <span style="color:green">```IMRPhenomD_NRTidalv2```</span> (5., 6., 7.)
 * (v1) <span style="color:green">```IMRPhenomHM```</span> (8., 9.)
 * (v1) <span style="color:green">```IMRPhenomNSBH```</span> (7., 10.)
+* (v1) <span style="color:green">```IMRPhenomXAS```</span> (11.)
 
 ## Testing
-The adherence of all the models with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>) is accuratly tested. As an example, we here report the comparison in the implementations of 
+The adherence of all the models with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>) is accuratly tested. As an example, we here report the comparison in the implementations of ```IMRPhenomXAS```
 
-![alt text](<https://github.com/CosmoStatGW/WF4Py/blob/master/IMRPhenomHM_Comparison.png>)
+![alt text](<https://github.com/CosmoStatGW/WF4Py/blob/master/IMRPhenomXAS_Comparison.png>)
 
 ## Bibliography  
 1. A. Buonanno et al. (2009) [arXiv:0907.0700](<https://arxiv.org/abs/0907.0700>)
@@ -71,3 +100,4 @@ The adherence of all the models with their implementation in [LALSuite](<https:/
 8. L. London et al. (2018) [arXiv:1708.00404](<https://arxiv.org/abs/1708.00404>)
 9. C. Kalaghatgi et al. (2019) [arXiv:1909.10010](<https://arxiv.org/abs/1909.10010>)
 10. F. Pannarale et al. (2015) [arXiv:1509.00512](<https://arxiv.org/abs/1509.00512>)
+11. G. Pratten et al. (2020) [arXiv:2001.11412](https://arxiv.org/abs/2001.11412)
