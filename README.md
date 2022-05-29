@@ -23,7 +23,9 @@ The organisation of the repository is the following:
 ```
 WF4Py/
      ├── WF4Py.py
-            Core: implementation of various GW waveform models present in
+            Import of the waveform models in the folder 'waveform_models/' for ease of use
+     ├── waveform_models/
+         	Core: implementation of various GW waveform models present in
 				LALSimulation in pure Python
      ├── WFutils.py
 			Auxiliary functions: constants, conversions,
