@@ -14,6 +14,8 @@ setuptools.setup(
     url='https://github.com/CosmoStatGW/WF4Py',
     license='GNU GPLv3',
     python_requires='>=3.7',
-    packages=setuptools.find_packages(),
+    packages=['WF4Py', 'WF4Py/waveform_models'],#setuptools.find_packages(),
+    include_package_data=True,
+    package_data={'':['WFfiles/*.txt', 'WFfiles/*.h5']},
     install_requires=['numpy', 'scipy', 'h5py'],
 )

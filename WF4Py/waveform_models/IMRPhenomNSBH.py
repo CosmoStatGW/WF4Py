@@ -10,7 +10,7 @@ import numpy as np
 import os
 import sys
 import h5py
-import WFutils as utils
+from WF4Py import WFutils as utils
 
 from .WFclass_definition import WaveFormModel
 

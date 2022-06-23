@@ -7,7 +7,7 @@
 #    license that can be found in the LICENSE file.
 
 import numpy as np
-import WFutils as utils
+from WF4Py import WFutils as utils
 
 from .WFclass_definition import WaveFormModel
 

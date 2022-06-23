@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 import os
 import sys
 
-import WFutils as utils
+from WF4Py import WFutils as utils
 
 ##############################################################################
 # WaveFormModel CLASS DEFINITION

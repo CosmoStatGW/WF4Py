@@ -1,7 +1,7 @@
 # WF4Py
 User-friendly package implementing GW waveform models in pure python, thus enabling parallelization over multiple events at a time. All the waveforms are accurately checked with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>).
 
-Developed by [Francesco Iacovelli](<https://github.com/FrancescoIacovelli>)
+Developed by [Francesco Iacovelli](<https://github.com/FrancescoIacovelli>).
 
 This package is released together with the paper [](<>). When making use of it, please cite the paper and the present git repository. Bibtex:
 
@@ -12,7 +12,7 @@ This package is released together with the paper [](<>). When making use of it, 
     eprint = "",
     archivePrefix = "arXiv",
     primaryClass = "astro-ph.CO",
-    month = "5",
+    month = "6",
     year = "2022",
 }
 ```
@@ -21,8 +21,8 @@ This package is released together with the paper [](<>). When making use of it, 
 The organisation of the repository is the following:
 
 ```
-WF4Py/
-     ├── WF4Py.py
+WF4Py/WF4Py/
+     ├── waveforms.py
             Import of the waveform models in the folder 'waveform_models/' for ease of use
      ├── waveform_models/
          	Core: implementation of various GW waveform models present in
@@ -30,10 +30,11 @@ WF4Py/
      ├── WFutils.py
 			Auxiliary functions: constants, conversions,
 				spherical harmonics and parameter checks
-     ├── WF4Py_tutorial.ipynb
-			Jupyter notebook with tutorial for the usage
      ├── WFfiles
     		Folder containing some text files needed for waveform computation
+WF4Py/
+	├── WF4Py_tutorial.ipynb
+		Jupyter notebook with tutorial for the usage
 
 ```		
 
@@ -67,7 +68,7 @@ where <span style="color:red">```Mc```</span> denotes the **chirp mass** (in uni
 Any waveform can then be easily used e.g. as
 
 ```python
-WF4Py.IMRPhenomD().Ampl(fgrids, **events)
+waveforms.IMRPhenomD().Ampl(fgrids, **events)
 ```
 
 #### For a detailed tutorial refer to ```WF4Py_tutorial.ipynb```
