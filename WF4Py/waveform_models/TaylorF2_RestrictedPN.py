@@ -21,7 +21,7 @@ class TaylorF2_RestrictedPN(WaveFormModel):
     '''
     
     # This waveform model is restricted PN (the amplitude stays as in Newtonian approximation) up to 3.5 PN
-    def __init__(self, fHigh=None, is_tidal=False, use_3p5PN_SpinHO=False, phiref_vlso=False, **kwargs):
+    def __init__(self, fHigh=None, is_tidal=False, use_3p5PN_SpinHO=False, phiref_vlso=False, is_eccentric=False, fRef_ecc=None, **kwargs):
         
         # Setting use_3p5PN_SpinHO=True SS and SSS contributions at 3.5PN are added (not present in LAL)
         # Setting is_tidal=True tidal contributions to the waveform at 10 and 12 PN are added
@@ -35,7 +35,8 @@ class TaylorF2_RestrictedPN(WaveFormModel):
             objectT = 'BBH'
         self.use_3p5PN_SpinHO = use_3p5PN_SpinHO
         self.phiref_vlso = phiref_vlso
-        super().__init__(objectT, fHigh, is_tidal=is_tidal, **kwargs)
+        self.fRef_ecc=fRef_ecc
+        super().__init__(objectT, fHigh, is_tidal=is_tidal, is_eccentric=is_eccentric, **kwargs)
     
     def Phi(self, f, **kwargs):
         # From A. Buonanno, B. Iyer, E. Ochsner, Y. Pan, B.S. Sathyaprakash - arXiv:0907.0700 - eq. (3.18) plus spins as in arXiv:1107.1267 eq. (5.3) up to 2.5PN and PhysRevD.93.084054 eq. (6) for 3PN and 3.5PN
@@ -79,6 +80,42 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         else:
             TF2coeffs['seven'] = 77096675.*np.pi/254016. + 378515.*np.pi*eta/1512.- 74045.*np.pi*eta2/756. + (-25150083775./3048192. + 10566655595.*eta/762048. - 1042165.*eta2/3024. + 5345.*eta2*eta/36.)*chi_s + Seta*((-25150083775./3048192. + 26804935.*eta/6048. - 1985.*eta2/48.)*chi_a)
 
+        if self.is_eccentric:
+            # These are the eccentricity dependent coefficients up to 3 PN order, in the low-eccentricity limit, from arXiv:1605.00304
+            ecc = kwargs['ecc']
+            if self.fRef_ecc is None:
+                v0ecc = np.amin(v, axis=0)
+            else:
+                v0ecc = (np.pi*Mtot_sec*self.fRef_ecc)**(1./3.)
+                
+            TF2EccCoeffs = {}
+            
+            TF2EccOverallAmpl = -2.355/1.462*ecc*ecc*((v0ecc/v)**(19./3.))
+            
+            TF2EccCoeffs['zero']      = 1.
+            TF2EccCoeffs['one']       = 0.
+            TF2EccCoeffs['twoV']      = 29.9076223/8.1976608 + 18.766963/2.927736*eta
+            TF2EccCoeffs['twoV0']     = 2.833/1.008 - 19.7/3.6*eta
+            TF2EccCoeffs['threeV']    = -28.19123/2.82600*np.pi
+            TF2EccCoeffs['threeV0']   = 37.7/7.2*np.pi
+            TF2EccCoeffs['fourV4']    = 16.237683263/3.330429696 + 241.33060753/9.71375328*eta+156.2608261/6.9383952*eta2
+            TF2EccCoeffs['fourV2V02'] = 84.7282939759/8.2632420864-7.18901219/3.68894736*eta-36.97091711/1.05398496*eta2
+            TF2EccCoeffs['fourV04']   = -1.193251/3.048192 - 66.317/9.072*eta +18.155/1.296*eta2
+            TF2EccCoeffs['fiveV5']    = -28.31492681/1.18395270*np.pi - 115.52066831/2.70617760*np.pi*eta
+            TF2EccCoeffs['fiveV3V02'] = -79.86575459/2.84860800*np.pi + 55.5367231/1.0173600*np.pi*eta
+            TF2EccCoeffs['fiveV2V03'] = 112.751736071/5.902315776*np.pi + 70.75145051/2.10796992*np.pi*eta
+            TF2EccCoeffs['fiveV05']   = 76.4881/9.0720*np.pi - 94.9457/2.2680*np.pi*eta
+            TF2EccCoeffs['sixV6']     = -436.03153867072577087/1.32658535116800000 + 53.6803271/1.9782000*np.euler_gamma + 157.22503703/3.25555200*np.pi*np.pi +(2991.72861614477/6.89135247360 - 15.075413/1.446912*np.pi*np.pi)*eta +345.5209264991/4.1019955200*eta2 + 506.12671711/8.78999040*eta2*eta + 384.3505163/5.9346000*np.log(2.) - 112.1397129/1.7584000*np.log(3.)
+            TF2EccCoeffs['sixV4V02']  = 46.001356684079/3.357073133568 + 253.471410141755/5.874877983744*eta - 169.3852244423/2.3313007872*eta2 - 307.833827417/2.497822272*eta2*eta
+            TF2EccCoeffs['sixV3V03']  = -106.2809371/2.0347200*np.pi*np.pi
+            TF2EccCoeffs['sixV2V04']  = -3.56873002170973/2.49880440692736 - 260.399751935005/8.924301453312*eta + 15.0484695827/3.5413894656*eta2 + 340.714213265/3.794345856*eta2*eta
+            TF2EccCoeffs['sixV06']    = 265.31900578691/1.68991764480 - 33.17/1.26*np.euler_gamma + 12.2833/1.0368*np.pi*np.pi + (91.55185261/5.48674560 - 3.977/1.152*np.pi*np.pi)*eta - 5.732473/1.306368*eta2 - 30.90307/1.39968*eta2*eta + 87.419/1.890*np.log(2.) - 260.01/5.60*np.log(3.)
+            
+            phi_Ecc = TF2EccOverallAmpl*(TF2EccCoeffs['zero'] + TF2EccCoeffs['one']*v + (TF2EccCoeffs['twoV']*v*v + TF2EccCoeffs['twoV0']*v0ecc*v0ecc) + (TF2EccCoeffs['threeV']*v*v*v + TF2EccCoeffs['threeV0']*v0ecc*v0ecc*v0ecc) + (TF2EccCoeffs['fourV4']*v*v*v*v + TF2EccCoeffs['fourV2V02']*v*v*v0ecc*v0ecc + TF2EccCoeffs['fourV04']*v0ecc*v0ecc*v0ecc*v0ecc) + (TF2EccCoeffs['fiveV5']*v*v*v*v*v + TF2EccCoeffs['fiveV3V02']*v*v*v*v0ecc*v0ecc + TF2EccCoeffs['fiveV2V03']*v*v*v0ecc*v0ecc*v0ecc + TF2EccCoeffs['fiveV05']*v0ecc*v0ecc*v0ecc*v0ecc*v0ecc) + ((TF2EccCoeffs['sixV6'] + 53.6803271/3.9564000*np.log(16.*v*v))*(v**6) + TF2EccCoeffs['sixV4V02']*v*v*v*v*v0ecc*v0ecc + TF2EccCoeffs['sixV3V03']*v*v*v*v0ecc*v0ecc*v0ecc + TF2EccCoeffs['sixV2V04']*v*v*v0ecc*v0ecc*v0ecc*v0ecc + (TF2EccCoeffs['sixV06'] - 33.17/2.52*np.log(16.*v0ecc*v0ecc))*(v0ecc**6)))
+        
+        else:
+            phi_Ecc = 0.
+            
         if self.is_tidal:
             # Add tidal contribution if needed, as in PhysRevD.89.103012
             Lambda1, Lambda2 = kwargs['Lambda1'], kwargs['Lambda2']
@@ -86,10 +123,10 @@ class TaylorF2_RestrictedPN(WaveFormModel):
             
             phi_Tidal = (-0.5*39.*Lam_t)*(v**10.) + (-3115./64.*Lam_t + 6595./364.*Seta*delLam)*(v**12.)
             
-            phase = TF2OverallAmpl*(TF2coeffs['zero'] + TF2coeffs['one']*v + TF2coeffs['two']*v*v + TF2coeffs['three']*v**3 + TF2coeffs['four']*v**4 + (TF2coeffs['five'] + TF2coeffs['five_log']*np.log(v))*v**5 + (TF2coeffs['six'] + TF2coeffs['six_log']*np.log(v))*v**6 + TF2coeffs['seven']*v**7 + phi_Tidal)/(v**5.)
-            
         else:
-            phase = TF2OverallAmpl*(TF2coeffs['zero'] + TF2coeffs['one']*v + TF2coeffs['two']*v*v + TF2coeffs['three']*v**3 + TF2coeffs['four']*v**4 + (TF2coeffs['five'] + TF2coeffs['five_log']*np.log(v))*v**5 + (TF2coeffs['six'] + TF2coeffs['six_log']*np.log(v))*v**6 + TF2coeffs['seven']*v**7)/(v**5.)
+            phi_Tidal = 0.
+        
+        phase = TF2OverallAmpl*(TF2coeffs['zero'] + TF2coeffs['one']*v + TF2coeffs['two']*v*v + TF2coeffs['three']*v**3 + TF2coeffs['four']*v**4 + (TF2coeffs['five'] + TF2coeffs['five_log']*np.log(v))*v**5 + (TF2coeffs['six'] + TF2coeffs['six_log']*np.log(v))*v**6 + TF2coeffs['seven']*v**7 + phi_Tidal + phi_Ecc)/(v**5.)
         
         return phase + phiR - np.pi*0.25
 

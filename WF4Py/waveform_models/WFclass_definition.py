@@ -23,13 +23,15 @@ class WaveFormModel(ABC):
     Abstract class to compute waveforms.
     '''
     
-    def __init__(self, objType, fcutPar, is_tidal=False, is_HigherModes=False):
+    def __init__(self, objType, fcutPar, is_tidal=False, is_HigherModes=False, is_Precessing=False, is_eccentric=False):
         # The kind of system the wf model is made for, can be 'BBH', 'BNS' or 'NSBH'
         self.objType = objType
         # The cut frequency factor of the waveform, in Hz, to be divided by Mtot (in units of Msun). The method fcut can be redefined, as e.g. in the IMRPhenomD implementation, and fcutPar can be passed as an adimensional frequency (Mf)
         self.fcutPar = fcutPar
-        self.is_tidal=is_tidal
+        self.is_tidal = is_tidal
         self.is_HigherModes = is_HigherModes
+        self.is_Precessing = is_Precessing
+        self.is_eccentric = is_eccentric
         
     @abstractmethod
     def Phi(self, f, **kwargs):

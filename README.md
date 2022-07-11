@@ -80,12 +80,12 @@ To install the package without cloning the git repository simply run
 pip install git+https://github.com/CosmoStatGW/WF4Py
 ```
 ## Available models
-* (v1) <span style="color:green">```TaylorF2_RestrictedPN```</span> (1., 2., 3., 4.)
-* (v1) <span style="color:green">```IMRPhenomD```</span> (5., 6.)
-* (v1) <span style="color:green">```IMRPhenomD_NRTidalv2```</span> (5., 6., 7.)
-* (v1) <span style="color:green">```IMRPhenomHM```</span> (8., 9.)
-* (v1) <span style="color:green">```IMRPhenomNSBH```</span> (7., 10.)
-* (v1) <span style="color:green">```IMRPhenomXAS```</span> (11.)
+* (v1) <span style="color:green">```TaylorF2_RestrictedPN```</span> (1., 2., 3., 4., 5.)
+* (v1) <span style="color:green">```IMRPhenomD```</span> (6., 7.)
+* (v1) <span style="color:green">```IMRPhenomD_NRTidalv2```</span> (6., 7., 8.)
+* (v1) <span style="color:green">```IMRPhenomHM```</span> (9., 10.)
+* (v1) <span style="color:green">```IMRPhenomNSBH```</span> (8., 11.)
+* (v1) <span style="color:green">```IMRPhenomXAS```</span> (12.)
 
 ## Testing
 The adherence of all the models with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>) is accuratly tested. As an example, we here report the comparison in the implementations of ```IMRPhenomXAS```
@@ -97,10 +97,11 @@ The adherence of all the models with their implementation in [LALSuite](<https:/
 2. P. Ajith (2011) [arXiv:1107.1267](<https://arxiv.org/abs/1107.1267>)
 3. C. K. Mishra et al. (2016) [arXiv:1601.05588](<https://arxiv.org/abs/1601.05588>)
 4. L. Wade et al. (2014) [arXiv:1402.5156](<https://arxiv.org/abs/1402.5156>)
-5. S. Husa et al. (2015) [arXiv:1508.07250](<https://arxiv.org/abs/1508.07250>)
-6. S. Khan et al. (2015) [arXiv:1508.07253](<https://arxiv.org/abs/1508.07253>)
-7. T. Dietrich et al. (2019) [arXiv:1905.06011](<https://arxiv.org/abs/1905.06011>)
-8. L. London et al. (2018) [arXiv:1708.00404](<https://arxiv.org/abs/1708.00404>)
-9. C. Kalaghatgi et al. (2019) [arXiv:1909.10010](<https://arxiv.org/abs/1909.10010>)
-10. F. Pannarale et al. (2015) [arXiv:1509.00512](<https://arxiv.org/abs/1509.00512>)
-11. G. Pratten et al. (2020) [arXiv:2001.11412](https://arxiv.org/abs/2001.11412)
+5. B. Moore et al. (2016) [arXiv:1605.00304](<https://arxiv.org/abs/1605.00304>)
+6. S. Husa et al. (2015) [arXiv:1508.07250](<https://arxiv.org/abs/1508.07250>)
+7. S. Khan et al. (2015) [arXiv:1508.07253](<https://arxiv.org/abs/1508.07253>)
+8. T. Dietrich et al. (2019) [arXiv:1905.06011](<https://arxiv.org/abs/1905.06011>)
+9. L. London et al. (2018) [arXiv:1708.00404](<https://arxiv.org/abs/1708.00404>)
+10. C. Kalaghatgi et al. (2019) [arXiv:1909.10010](<https://arxiv.org/abs/1909.10010>)
+11. F. Pannarale et al. (2015) [arXiv:1509.00512](<https://arxiv.org/abs/1509.00512>)
+12. G. Pratten et al. (2020) [arXiv:2001.11412](https://arxiv.org/abs/2001.11412)
