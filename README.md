@@ -3,19 +3,7 @@ User-friendly package implementing GW waveform models in pure python, thus enabl
 
 Developed by [Francesco Iacovelli](<https://github.com/FrancescoIacovelli>).
 
-This package is released together with the paper [](<>). When making use of it, please cite the paper and the present git repository. Bibtex:
-
-```
-@article{Iacovelli,
-    author = "Iacovelli, Francesco and Mancarella, Michele and Foffa, Stefano and Maggiore, Michele",
-    title = "{}",
-    eprint = "",
-    archivePrefix = "arXiv",
-    primaryClass = "astro-ph.CO",
-    month = "6",
-    year = "2022",
-}
-```
+This package is released together with the papers [arXiv:2207.02771](<https://arxiv.org/abs/2207.02771>) and [arXiv:2207.06910](<https://arxiv.org/abs/2207.06910>), where detail of implementations and results can be found.
 
 ## Code Organization
 The organisation of the repository is the following:
@@ -44,6 +32,7 @@ WF4Py/
 * [Installation](https://github.com/CosmoStatGW/WF4Py#Installation)
 * [Available models](https://github.com/CosmoStatGW/WF4Py#Available-models)
 * [Testing](https://github.com/CosmoStatGW/WF4Py#Testing)
+* [Citation](https://github.com/CosmoStatGW/WF4Py#Citation)
 * [Bibliography](https://github.com/CosmoStatGW/WF4Py#Bibliography)
 
 ## Overview and usage
@@ -91,6 +80,33 @@ pip install git+https://github.com/CosmoStatGW/WF4Py
 The adherence of all the models with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>) is accuratly tested. As an example, we here report the comparison in the implementations of ```IMRPhenomXAS```
 
 ![alt text](<https://github.com/CosmoStatGW/WF4Py/blob/master/IMRPhenomXAS_Comparison.png>)
+
+## Citation
+If using this software, please cite this repository and the papers [arXiv:2207.02771](<https://arxiv.org/abs/2207.02771>) and [arXiv:2207.06910](<https://arxiv.org/abs/2207.06910>). Bibtex:
+
+```
+@article{Iacovelli:2022bbs,
+    author = "Iacovelli, Francesco and Mancarella, Michele and Foffa, Stefano and Maggiore, Michele",
+    title = "{Forecasting the detection capabilities of third-generation gravitational-wave detectors using GWFAST}",
+    eprint = "2207.02771",
+    archivePrefix = "arXiv",
+    primaryClass = "gr-qc",
+    month = "7",
+    year = "2022"
+}
+```
+
+```
+@article{Iacovelli:2022mbg,
+    author = "Iacovelli, Francesco and Mancarella, Michele and Foffa, Stefano and Maggiore, Michele",
+    title = "{Supplement to "Forecasting the detection capabilities of third-generation gravitational-wave detectors using GWFAST": how to GWFAST}",
+    eprint = "2207.06910",
+    archivePrefix = "arXiv",
+    primaryClass = "astro-ph.IM",
+    month = "7",
+    year = "2022"
+}
+```
 
 ## Bibliography  
 1. A. Buonanno et al. (2009) [arXiv:0907.0700](<https://arxiv.org/abs/0907.0700>)
