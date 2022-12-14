@@ -60,7 +60,7 @@ Any waveform can then be easily used e.g. as
 waveforms.IMRPhenomD().Ampl(fgrids, **events)
 ```
 
-#### For a detailed tutorial refer to ```WF4Py_tutorial.ipynb```
+#### For a detailed tutorial refer to [```WF4Py_tutorial.ipynb```](<https://github.com/CosmoStatGW/WF4Py/blob/master/WF4Py_tutorial.ipynb>)
 
 ## Installation
 To install the package without cloning the git repository simply run
@@ -99,11 +99,15 @@ If using this software, please cite this repository and the papers [arXiv:2207.0
 ```
 @article{Iacovelli:2022mbg,
     author = "Iacovelli, Francesco and Mancarella, Michele and Foffa, Stefano and Maggiore, Michele",
-    title = "{Supplement to "Forecasting the detection capabilities of third-generation gravitational-wave detectors using GWFAST": how to GWFAST}",
+    title = "{GWFAST: A Fisher Information Matrix Python Code for Third-generation Gravitational-wave Detectors}",
     eprint = "2207.06910",
     archivePrefix = "arXiv",
     primaryClass = "astro-ph.IM",
-    month = "7",
+    doi = "10.3847/1538-4365/ac9129",
+    journal = "Astrophys. J. Supp.",
+    volume = "263",
+    number = "1",
+    pages = "2",
     year = "2022"
 }
 ```
