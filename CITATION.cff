@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: WF4Py
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file. Please also cite the
+  provided references to the release papers.
+type: software
+authors:
+  - given-names: Francesco
+    family-names: Iacovelli
+    email: francesco.iacovelli@unige.ch
+    affiliation: University of Geneva
+    orcid: https://orcid.org/0000-0002-4875-5862
+repository-code: 'https://github.com/CosmoStatGW/WF4Py'
+url: 'https://github.com/CosmoStatGW/WF4Py'
+abstract: >-
+  WF4Py is a user-friendly package implementing 
+  frequency-domain GW waveform models in pure Python, 
+  thus enabling parallelization over multiple events 
+  at a time. 
+keywords:
+  - python
+  - waveforms
+  - gravitational-waves
+license: GPL-3.0
+version: 1.0.0
+date-released: 2022-09-08
+doi: 10.5281/zenodo.7060239
