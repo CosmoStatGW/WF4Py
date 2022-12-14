@@ -21,7 +21,7 @@ class TaylorF2_RestrictedPN(WaveFormModel):
     '''
     
     # This waveform model is restricted PN (the amplitude stays as in Newtonian approximation) up to 3.5 PN
-    def __init__(self, fHigh=None, is_tidal=False, use_3p5PN_SpinHO=False, phiref_vlso=False, is_eccentric=False, fRef_ecc=None, **kwargs):
+    def __init__(self, fHigh=None, is_tidal=False, use_3p5PN_SpinHO=False, phiref_vlso=False, is_eccentric=False, fRef_ecc=None, which_ISCO='Schw', use_QuadMonTid=False, **kwargs):
         
         # Setting use_3p5PN_SpinHO=True SS and SSS contributions at 3.5PN are added (not present in LAL)
         # Setting is_tidal=True tidal contributions to the waveform at 10 and 12 PN are added
@@ -36,6 +36,8 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         self.use_3p5PN_SpinHO = use_3p5PN_SpinHO
         self.phiref_vlso = phiref_vlso
         self.fRef_ecc=fRef_ecc
+        self.which_ISCO=which_ISCO
+        self.use_QuadMonTid = use_QuadMonTid
         super().__init__(objectT, fHigh, is_tidal=is_tidal, is_eccentric=is_eccentric, **kwargs)
     
     def Phi(self, f, **kwargs):
@@ -47,13 +49,29 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         eta = kwargs['eta']
         eta2 = eta*eta
         Seta = np.sqrt(1.0 - 4.0*eta)
+        
+        m1ByM = 0.5 * (1.0 + Seta)
+        m2ByM = 0.5 * (1.0 - Seta)
+        
         chi1, chi2 = kwargs['chi1z'], kwargs['chi2z']
+        chi12, chi22 = chi1*chi1, chi2*chi2
+        chi1dotchi2  = chi1*chi2
         chi_s, chi_a   = 0.5*(chi1 + chi2), 0.5*(chi1 - chi2)
         chi_s2, chi_a2 = chi_s*chi_s, chi_a*chi_a
         chi_sdotchi_a  = chi_s*chi_a
         # flso = 1/6^(3/2)/(pi*M) -> vlso = (pi*M*flso)^(1/3) = (1/6^(3/2))^(1/3)
         vlso = 1./np.sqrt(6.)
         
+        if (self.is_tidal) and (self.use_QuadMonTid):
+            Lambda1, Lambda2 = kwargs['Lambda1'], kwargs['Lambda2']
+            # A non-zero tidal deformability induces a quadrupole moment (for BBH it is 1).
+            # The relation between the two is given in arxiv:1608.02582 eq. (15) with coefficients from third row of Table I
+            # We also extend the range to 0 <= Lam < 1, as done in LALSimulation in LALSimUniversalRelations.c line 123
+            QuadMon1 = np.where(Lambda1 < 1., 1. + Lambda1*(0.427688866723244 + Lambda1*(-0.324336526985068 + Lambda1*0.1107439432180572)), np.exp(0.1940 + 0.09163 * np.log(Lambda1) + 0.04812 * np.log(Lambda1) * np.log(Lambda1) -4.283e-3 * np.log(Lambda1) * np.log(Lambda1) * np.log(Lambda1) + 1.245e-4 * np.log(Lambda1) * np.log(Lambda1) * np.log(Lambda1) * np.log(Lambda1)))
+            QuadMon2 = np.where(Lambda2 < 1., 1. + Lambda2*(0.427688866723244 + Lambda2*(-0.324336526985068 + Lambda2*0.1107439432180572)), np.exp(0.1940 + 0.09163 * np.log(Lambda2) + 0.04812 * np.log(Lambda2) * np.log(Lambda2) -4.283e-3 * np.log(Lambda2) * np.log(Lambda2) * np.log(Lambda2) + 1.245e-4 * np.log(Lambda2) * np.log(Lambda2) * np.log(Lambda2) * np.log(Lambda2)))
+        else:
+            QuadMon1, QuadMon2 = np.ones(eta.shape), np.ones(eta.shape)
+            
         TF2coeffs = {}
         TF2OverallAmpl = 3./(128. * eta)
         
@@ -61,7 +79,9 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         TF2coeffs['one'] = 0.
         TF2coeffs['two'] = 3715./756. + (55.*eta)/9.
         TF2coeffs['three'] = -16.*np.pi + (113.*Seta*chi_a)/3. + (113./3. - (76.*eta)/3.)*chi_s
-        TF2coeffs['four'] = 15293365./508032. + (27145.*eta)/504.+ (3085.*eta2)/72. + (-405./8. + 200.*eta)*chi_a2 - (405.*Seta*chi_sdotchi_a)/4. + (-405./8. + (5.*eta)/2.)*chi_s2
+        #TF2coeffs['four'] = 15293365./508032. + (27145.*eta)/504.+ (3085.*eta2)/72. + (-405./8. + 200.*eta)*chi_a2 - (405.*Seta*chi_sdotchi_a)/4. + (-405./8. + (5.*eta)/2.)*chi_s2
+        # For 2PN coeff we use chi1 and chi2 so to have the quadrupole moment explicitly appearing
+        TF2coeffs['four'] = 5.*(3058.673/7.056 + 5429./7.*eta+617.*eta2)/72. + 247./4.8*eta*chi1dotchi2 -721./4.8*eta*chi1dotchi2 + (-720./9.6*QuadMon1 + 1./9.6)*m1ByM*m1ByM*chi12 + (-720./9.6*QuadMon2 + 1./9.6)*m2ByM*m2ByM*chi22 + (240./9.6*QuadMon1 - 7./9.6)*m1ByM*m1ByM*chi12 + (240./9.6*QuadMon2 - 7./9.6)*m2ByM*m2ByM*chi22
         # This part is common to 5 and 5log, avoid recomputing
         TF2_5coeff_tmp = (732985./2268. - 24260.*eta/81. - 340.*eta2/9.)*chi_s + (732985./2268. + 140.*eta/9.)*Seta*chi_a
         if self.phiref_vlso:
@@ -72,7 +92,9 @@ class TaylorF2_RestrictedPN(WaveFormModel):
             # This pi factor is needed to include LAL fRef rescaling, so to end up with the exact same waveform
             phiR = np.pi
         TF2coeffs['five_log'] = (38645.*np.pi/756. - 65.*np.pi*eta/9. - TF2_5coeff_tmp)*3.
-        TF2coeffs['six'] = 11583231236531./4694215680. - 640./3.*np.pi**2 - 6848./21.*np.euler_gamma + eta*(-15737765635./3048192. + 2255./12.*np.pi**2) + eta2*76055./1728. - eta2*eta*127825./1296. - (6848./21.)*np.log(4.) + np.pi*(2270.*Seta*chi_a/3. + (2270./3. - 520.*eta)*chi_s) + (75515./144. - 8225.*eta/18.)*Seta*chi_sdotchi_a + (75515./288. - 263245.*eta/252. - 480.*eta2)*chi_a2 + (75515./288. - 232415.*eta/504. + 1255.*eta2/9.)*chi_s2
+        #TF2coeffs['six'] = 11583231236531./4694215680. - 640./3.*np.pi**2 - 6848./21.*np.euler_gamma + eta*(-15737765635./3048192. + 2255./12.*np.pi**2) + eta2*76055./1728. - eta2*eta*127825./1296. - (6848./21.)*np.log(4.) + np.pi*(2270.*Seta*chi_a/3. + (2270./3. - 520.*eta)*chi_s) + (75515./144. - 8225.*eta/18.)*Seta*chi_sdotchi_a + (75515./288. - 263245.*eta/252. - 480.*eta2)*chi_a2 + (75515./288. - 232415.*eta/504. + 1255.*eta2/9.)*chi_s2
+        # For 3PN coeff we use chi1 and chi2 so to have the quadrupole moment explicitly appearing
+        TF2coeffs['six'] = 11583.231236531/4.694215680 - 640./3.*np.pi*np.pi - 684.8/2.1*np.euler_gamma + eta*(-15737.765635/3.048192 + 225.5/1.2*np.pi*np.pi) + eta2*76.055/1.728 - eta2*eta*127.825/1.296 - np.log(4.)*684.8/2.1 + np.pi*chi1*m1ByM*(1490./3. + m1ByM*260.) + np.pi*chi2*m2ByM*(1490./3. + m2ByM*260.) + (326.75/1.12 + 557.5/1.8*eta)*eta*chi1dotchi2 + (4703.5/8.4+2935./6.*m1ByM-120.*m1ByM*m1ByM)*m1ByM*m1ByM*QuadMon1*chi12 + (-4108.25/6.72-108.5/1.2*m1ByM+125.5/3.6*m1ByM*m1ByM)*m1ByM*m1ByM*chi12 + (4703.5/8.4+2935./6.*m2ByM-120.*m2ByM*m2ByM)*m2ByM*m2ByM*QuadMon2*chi22 + (-4108.25/6.72-108.5/1.2*m2ByM+125.5/3.6*m2ByM*m2ByM)*m2ByM*m2ByM*chi22
         TF2coeffs['six_log'] = -(6848./21.)
         if self.use_3p5PN_SpinHO:
         # This part includes SS and SSS contributions at 3.5PN, which are not included in LAL
@@ -151,3 +173,44 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         t7  = (- 15419335./127008. - 75703./756.*eta + 14809./378.*eta2)*np.pi*(v**7)
         
         return OverallFac*(t05 + t6 + t7)
+    
+    def fcut(self, **kwargs):
+        # The cut frequency of the waveform. This can be approximated as 2f_ISCO for inspiral only waveforms. The flag which_ISCO controls the expression of the ISCO to use:
+        # - if Schw is passed the Schwarzschild ISCO for a non-rotating final BH is used (depending only on Mc and eta)
+        # - if Kerr is passed the Kerr ISCO for a rotating final BH is computed (depending on Mc, eta and the spins), as in arXiv:2108.05861 (see in particular App. C). NOTE: this is pushing the validity of TaylorF2 to the limit, and is not the default option.
+        if self.which_ISCO=='Schw':
+            
+            return self.fcutPar/(kwargs['Mc']/(kwargs['eta']**(3./5.)))
+        
+        elif self.which_ISCO=='Kerr':
+            
+            eta = kwargs['eta']
+            eta2 = eta*eta
+            Mtot = kwargs['Mc']/(eta**(3./5.))
+            chi1, chi2 = kwargs['chi1z'], kwargs['chi2z']
+            Seta = np.sqrt(1.0 - 4.0*eta)
+            m1 = 0.5 * (1.0 + Seta)
+            m2 = 0.5 * (1.0 - Seta)
+            s = (m1*m1 * chi1 + m2*m2 * chi2) / (m1*m1 + m2*m2)
+            atot = (chi1 + chi2*(m2/m1)*(m2/m1))/((1.+m2/m1)*(1.+m2/m1))
+            aeff = atot + 0.41616*eta*(chi1 + chi2)
+
+            def r_ISCO_of_chi(chi):
+                Z1_ISCO = 1.0 + ((1.0 - chi*chi)**(1./3.))*((1.0+chi)**(1./3.) + (1.0-chi)**(1./3.))
+                Z2_ISCO = np.sqrt(3.0*chi*chi + Z1_ISCO*Z1_ISCO)
+                return np.where(chi>0., 3.0 + Z2_ISCO - np.sqrt((3.0 - Z1_ISCO)*(3.0 + Z1_ISCO + 2.0*Z2_ISCO)), 3.0 + Z2_ISCO + np.sqrt((3.0 - Z1_ISCO)*(3.0 + Z1_ISCO + 2.0*Z2_ISCO)))
+            
+            r_ISCO = r_ISCO_of_chi(aeff)
+            
+            EradNS = eta * (0.055974469826360077 + 0.5809510763115132 * eta - 0.9606726679372312 * eta2 + 3.352411249771192 * eta2*eta)
+            EradTot = (EradNS * (1. + (-0.0030302335878845507 - 2.0066110851351073 * eta + 7.7050567802399215 * eta2) * s)) / (1. + (-0.6714403054720589 - 1.4756929437702908 * eta + 7.304676214885011 * eta2) * s)
+            
+            Mfin = Mtot*(1.-EradTot)
+            L_ISCO = 2./(3.*np.sqrt(3.))*(1. + 2.*np.sqrt(3.*r_ISCO - 2.))
+            E_ISCO = np.sqrt(1. - 2./(3.*r_ISCO))
+            
+            chif = atot + eta*(L_ISCO - 2.*atot*(E_ISCO - 1.)) + (-3.821158961 - 1.2019*aeff - 1.20764*aeff*aeff)*eta2 + (3.79245 + 1.18385*aeff + 4.90494*aeff*aeff)*eta2*eta
+            
+            Om_ISCO = 1./(((r_ISCO_of_chi(chif))**(3./2.))+chif)
+            
+            return Om_ISCO/(np.pi*Mfin*utils.GMsun_over_c3)
