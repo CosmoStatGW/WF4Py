@@ -66,7 +66,7 @@ html_theme_options = {
     'source_directory' : 'docs/source/',
 }
 
-html_logo = 'https://github.com/CosmoStatGW/WF4Py/docs/source/WF4Py_logo.png'#'WF4Py_logo.png'
+html_logo = 'https://github.com/CosmoStatGW/WF4Py/blob/master/docs/source/WF4Py_logo.png'#'WF4Py_logo.png'
 
 #def setup(app):
 #    app.add_css_file('custom.css')

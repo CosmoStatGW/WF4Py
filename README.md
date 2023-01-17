@@ -1,3 +1,4 @@
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.18914.svg)](http://dx.doi.org/10.5281/zenodo.7060240) [![Documentation Status](https://readthedocs.org/projects/wf4py/badge/?version=latest)](https://wf4py.readthedocs.io/en/latest/?badge=latest)
 # WF4Py
 User-friendly package implementing GW waveform models in pure python, thus enabling parallelization over multiple events at a time. All the waveforms are accurately checked with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>).
 
@@ -23,17 +24,30 @@ WF4Py/WF4Py/
 WF4Py/
 	├── WF4Py_tutorial.ipynb
 		Jupyter notebook with tutorial for the usage
+WF4Py/docs/ 
+		Code documentation in Sphinx
 
 ```		
 
 ## Summary
-
-* [Overview and usage](https://github.com/CosmoStatGW/WF4Py#Overview-and-usage)
+* [Documentation](https://github.com/CosmoStatGW/WF4Py#Documentation)
 * [Installation](https://github.com/CosmoStatGW/WF4Py#Installation)
+* [Overview and usage](https://github.com/CosmoStatGW/WF4Py#Overview-and-usage)
 * [Available models](https://github.com/CosmoStatGW/WF4Py#Available-models)
 * [Testing](https://github.com/CosmoStatGW/WF4Py#Testing)
 * [Citation](https://github.com/CosmoStatGW/WF4Py#Citation)
 * [Bibliography](https://github.com/CosmoStatGW/WF4Py#Bibliography)
+
+## Documentation
+
+WF4Py has its documentation hosted on Read the Docs [here](<https://wf4py.readthedocs.io/en/latest/>), and it can also be built from the ```docs``` directory.
+
+## Installation
+To install the package without cloning the git repository simply run
+
+```
+pip install git+https://github.com/CosmoStatGW/WF4Py
+```
 
 ## Overview and usage
 Each waveform is a derived of the abstract class <span style="color:green">```WaveFormModel```</span>, and has built in functions <span style="color:blue">```Phi```</span>, <span style="color:blue">```Ampl```</span>, <span style="color:blue">```tau_star```</span> and <span style="color:blue">```fcut```</span> to compute the **phase**, **amplitude**, **time to coalescence** and **cut frequency**, respectively for the chosen catalog of events.
@@ -62,19 +76,13 @@ waveforms.IMRPhenomD().Ampl(fgrids, **events)
 
 #### For a detailed tutorial refer to [```WF4Py_tutorial.ipynb```](<https://github.com/CosmoStatGW/WF4Py/blob/master/WF4Py_tutorial.ipynb>)
 
-## Installation
-To install the package without cloning the git repository simply run
-
-```
-pip install git+https://github.com/CosmoStatGW/WF4Py
-```
 ## Available models
-* (v1) <span style="color:green">```TaylorF2_RestrictedPN```</span> (1., 2., 3., 4., 5.)
-* (v1) <span style="color:green">```IMRPhenomD```</span> (6., 7.)
-* (v1) <span style="color:green">```IMRPhenomD_NRTidalv2```</span> (6., 7., 8.)
-* (v1) <span style="color:green">```IMRPhenomHM```</span> (9., 10.)
-* (v1) <span style="color:green">```IMRPhenomNSBH```</span> (8., 11.)
-* (v1) <span style="color:green">```IMRPhenomXAS```</span> (12.)
+* (v1.0.0) <span style="color:green">```TaylorF2_RestrictedPN```</span> (1., 2., 3., 4., 5.)
+* (v1.0.0) <span style="color:green">```IMRPhenomD```</span> (6., 7.)
+* (v1.0.0) <span style="color:green">```IMRPhenomD_NRTidalv2```</span> (6., 7., 8.)
+* (v1.0.0) <span style="color:green">```IMRPhenomHM```</span> (9., 10.)
+* (v1.0.0) <span style="color:green">```IMRPhenomNSBH```</span> (8., 11.)
+* (v1.0.0) <span style="color:green">```IMRPhenomXAS```</span> (12.)
 
 ## Testing
 The adherence of all the models with their implementation in [LALSuite](<https://git.ligo.org/lscsoft/lalsuite>) is accuratly tested. As an example, we here report the comparison in the implementations of ```IMRPhenomXAS```
@@ -87,11 +95,15 @@ If using this software, please cite this repository and the papers [arXiv:2207.0
 ```
 @article{Iacovelli:2022bbs,
     author = "Iacovelli, Francesco and Mancarella, Michele and Foffa, Stefano and Maggiore, Michele",
-    title = "{Forecasting the detection capabilities of third-generation gravitational-wave detectors using GWFAST}",
+    title = "{Forecasting the Detection Capabilities of Third-generation Gravitational-wave Detectors Using GWFAST}",
     eprint = "2207.02771",
     archivePrefix = "arXiv",
     primaryClass = "gr-qc",
-    month = "7",
+    doi = "10.3847/1538-4357/ac9cd4",
+    journal = "Astrophys. J.",
+    volume = "941",
+    number = "2",
+    pages = "208",
     year = "2022"
 }
 ```
