@@ -9,7 +9,7 @@
 project = 'WF4Py'
 copyright = '2023, Francesco Iacovelli'
 author = 'Francesco Iacovelli'
-release = '1.0.0'
+release = '1.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -66,7 +66,7 @@ html_theme_options = {
     'source_directory' : 'docs/source/',
 }
 
-html_logo = 'https://github.com/CosmoStatGW/WF4Py/blob/master/docs/source/WF4Py_logo.png'#'WF4Py_logo.png'
+html_logo = '_static/WF4Py_logo.png'
 
 #def setup(app):
 #    app.add_css_file('custom.css')
