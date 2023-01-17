@@ -17,11 +17,22 @@ from .WFclass_definition import WaveFormModel
 ##############################################################################
 
 class IMRPhenomD(WaveFormModel):
-    '''
-    IMRPhenomD waveform model
-    '''
+    """
+    IMRPhenomD waveform model.
+    
+    Relevant references:
+        [1] `arXiv:1508.07250 <https://arxiv.org/abs/1508.07250>`_
+        
+        [2] `arXiv:1508.07253 <https://arxiv.org/abs/1508.07253>`_
+    
+    :param kwargs: Optional arguments to be passed to the parent class :py:class:`WF4Py.waveform_models.WFclass_definition.WaveFormModel`.
+        
+    """
     # All is taken from LALSimulation and arXiv:1508.07250, arXiv:1508.07253
     def __init__(self, **kwargs):
+        """
+        Constructor method
+        """
         # Dimensionless frequency (Mf) at which the inspiral amplitude switches to the intermediate amplitude
         self.AMP_fJoin_INS = 0.014
         # Dimensionless frequency (Mf) at which the inspiral phase switches to the intermediate phase
@@ -36,6 +47,15 @@ class IMRPhenomD(WaveFormModel):
         self.QNMgrid_fdamp = np.loadtxt(os.path.join(utils.WFfilesPATH, 'QNMData_fdamp.txt'))
         
     def Phi(self, f, **kwargs):
+        """
+        Compute the phase of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the phase of, as in :py:data:`events`.
+        :return: GW phase for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         M = kwargs['Mc']/(kwargs['eta']**(3./5.))
         eta = kwargs['eta']
@@ -181,6 +201,15 @@ class IMRPhenomD(WaveFormModel):
         return phis + np.where(fgrid < self.fcutPar, - t0*(fgrid - fRef) - phiRef, 0.)
         
     def Ampl(self, f, **kwargs):
+        """
+        Compute the amplitude of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the amplitude of, as in :py:data:`events`.
+        :return: GW amplitude for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # Useful quantities
         M = kwargs['Mc']/(kwargs['eta']**(3./5.))
@@ -270,8 +299,16 @@ class IMRPhenomD(WaveFormModel):
         return Overallamp*amp0*(fgrid**(-7./6.))*amplitudeIMR
         
     def _finalspin(self, eta, chi1, chi2):
-        # Compute the spin of the final object, as in LALSimIMRPhenomD_internals.c line 161 and 142,
-        # which is taken from arXiv:1508.07250 eq. (3.6)
+        """
+        Compute the spin of the final object, as in LALSimIMRPhenomD_internals.c line 161 and 142, which is taken from `arXiv:1508.07250 <https://arxiv.org/abs/1508.07250>`_ eq. (3.6).
+        
+        :param numpy.ndarray or float eta: Symmetric mass ratio of the objects.
+        :param numpy.ndarray or float chi1: Spin of the primary object.
+        :param numpy.ndarray or float chi2: Spin of the secondary object.
+        :return: The spin of the final object.
+        :rtype: numpy.ndarray or float
+        
+        """
         Seta = np.sqrt(1.0 - 4.0*eta)
         m1 = 0.5 * (1.0 + Seta)
         m2 = 0.5 * (1.0 - Seta)
@@ -283,7 +320,16 @@ class IMRPhenomD(WaveFormModel):
         return af1 + af2 + af3
         
     def _radiatednrg(self, eta, chi1, chi2):
-        # Predict the total radiated energy, from arXiv:1508.07250 eq (3.7) and (3.8)
+        """
+        Compute the total radiated energy, as in `arXiv:1508.07250 <https://arxiv.org/abs/1508.07250>`_ eq. (3.7) and (3.8).
+        
+        :param numpy.ndarray or float eta: Symmetric mass ratio of the objects.
+        :param numpy.ndarray or float chi1: Spin of the primary object.
+        :param numpy.ndarray or float chi2: Spin of the secondary object.
+        :return: Total energy radiated by the system.
+        :rtype: numpy.ndarray or float
+        
+        """
         Seta = np.sqrt(1.0 - 4.0*eta)
         m1 = 0.5 * (1.0 + Seta)
         m2 = 0.5 * (1.0 - Seta)
@@ -294,6 +340,17 @@ class IMRPhenomD(WaveFormModel):
         return (EradNS * (1. + (-0.0030302335878845507 - 2.0066110851351073 * eta + 7.7050567802399215 * eta*eta) * s)) / (1. + (-0.6714403054720589 - 1.4756929437702908 * eta + 7.304676214885011 * eta*eta) * s)
     
     def tau_star(self, f, **kwargs):
+        """
+        Compute the time to coalescence (in seconds) as a function of frequency (in :math:`\\rm Hz`), given the events parameters.
+        
+        We use the expression in `arXiv:0907.0700 <https://arxiv.org/abs/0907.0700>`_ eq. (3.8b).
+        
+        :param numpy.ndarray f: Frequency grid on which the time to coalescence will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the time to coalescence of, as in :py:data:`events`.
+        :return: time to coalescence for the chosen events evaluated on the frequency grid, in seconds.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # For complex waveforms we use the expression in arXiv:0907.0700 eq. (3.8b)
         Mtot_sec = kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.))
@@ -310,6 +367,14 @@ class IMRPhenomD(WaveFormModel):
         return OverallFac*(t05 + t6 + t7)
     
     def fcut(self, **kwargs):
+        """
+        Compute the cut frequency of the waveform as a function of the events parameters, in :math:`\\rm Hz`.
+        
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the cut frequency of, as in :py:data:`events`.
+        :return: Cut frequency of the waveform for the chosen events, in :math:`\\rm Hz`.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         return self.fcutPar/(kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.)))
   

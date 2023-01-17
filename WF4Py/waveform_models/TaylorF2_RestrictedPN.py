@@ -16,13 +16,39 @@ from .WFclass_definition import WaveFormModel
 ##############################################################################
 
 class TaylorF2_RestrictedPN(WaveFormModel):
-    '''
-    TaylorF2 restricted PN waveform model
-    '''
+    """
+    TaylorF2 restricted PN waveform model, with coefficients up to 3.5 PN. The amplitude is thus the same as in Newtonian approximation, and the model is valid only in the *inspiral*.
+    
+    This model can include both the contribution of tidal effects at 5 and 6 PN and the contribution of eccentricity up to 3 PN.
+    
+    Relevant references:
+        [1] `arXiv:0907.0700 <https://arxiv.org/abs/0907.0700>`_
+        
+        [2] `arXiv:1107.1267 <https://arxiv.org/abs/1107.1267>`_
+        
+        [3] `arXiv:1402.5156 <https://arxiv.org/abs/1402.5156>`_
+        
+        [4] `arXiv:1601.05588 <https://arxiv.org/abs/1601.05588>`_
+        
+        [5] `arXiv:1605.00304 <https://arxiv.org/abs/1605.00304>`_
+    
+    :param float fHigh: The cut frequency factor of the waveform, in :math:`\\rm Hz`. By default this is set to two times the *Innermost Stable Circular Orbit*, ISCO, frequency of a remnant Schwarzschild BH having a mass equal to the total mass of the binary, see :py:data:`WF4Py.WFutils.f_isco`. Another useful value, whose coefficient is provided in :py:data:`WF4Py.WFutils.f_qK`, is the limit of the quasi-Keplerian approximation, defined as in `arXiv:2108.05861 <https://arxiv.org/abs/2108.05861>`_ (see also `arXiv:1605.00304 <https://arxiv.org/abs/1605.00304>`_), which is more conservative than two times the Schwarzschild ISCO.
+    :param bool, optional is_tidal: Boolean specifying if the waveform has to include tidal effects.
+    :param bool, optional use_3p5PN_SpinHO: Boolean specifying if the waveform has to include the quadratic- and cubic-in-spin contributions at 3.5 PN, which are not included in ``LAL``.
+    :param bool, optional phiref_vlso: Boolean specifying if the reference frequency of the waveform has to be set to the *Last Stable Orbit*, LSO, frequency.
+    :param bool, optional is_eccentric: Boolean specifying if the waveform has to include orbital eccentricity.
+    :param float, optional fRef_ecc: The reference frequency for the provided eccentricity, :math:`f_{e_{0}}`.
+    :param str, optional which_ISCO: String specifying if the waveform has to be cut at two times the ISCO frequency of a remnant Schwarzschild (non-rotating) BH or of a Kerr BH, as in `arXiv:2108.05861 <https://arxiv.org/abs/2108.05861>`_ (see in particular App. C), with the fits from `arXiv:1605.01938 <https://arxiv.org/abs/1605.01938>`_. The Schwarzschild ISCO can be selected passing ``'Schw'``, while the Kerr ISCO passing ``'Kerr'``. NOTE: the Kerr option pushes the validity of the model to the limit, and is not the default option.
+    :param bool, optional use_QuadMonTid: Boolean specifying if the waveform has to include the spin-induced quadrupole due to tidal effects, with the fits from `arXiv:1608.02582 <https://arxiv.org/abs/1608.02582>`_.
+    :param kwargs: Optional arguments to be passed to the parent class :py:class:`WF4Py.waveform_models.WFclass_definition.WaveFormModel`.
+    
+    """
     
     # This waveform model is restricted PN (the amplitude stays as in Newtonian approximation) up to 3.5 PN
     def __init__(self, fHigh=None, is_tidal=False, use_3p5PN_SpinHO=False, phiref_vlso=False, is_eccentric=False, fRef_ecc=None, which_ISCO='Schw', use_QuadMonTid=False, **kwargs):
-        
+        """
+        Constructor method
+        """
         # Setting use_3p5PN_SpinHO=True SS and SSS contributions at 3.5PN are added (not present in LAL)
         # Setting is_tidal=True tidal contributions to the waveform at 10 and 12 PN are added
         # Setting phiref_vlso=True the LSO frequency is used as reference frequency
@@ -41,6 +67,15 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         super().__init__(objectT, fHigh, is_tidal=is_tidal, is_eccentric=is_eccentric, **kwargs)
     
     def Phi(self, f, **kwargs):
+        """
+        Compute the phase of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the phase of, as in :py:data:`events`.
+        :return: GW phase for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         # From A. Buonanno, B. Iyer, E. Ochsner, Y. Pan, B.S. Sathyaprakash - arXiv:0907.0700 - eq. (3.18) plus spins as in arXiv:1107.1267 eq. (5.3) up to 2.5PN and PhysRevD.93.084054 eq. (6) for 3PN and 3.5PN
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         
@@ -153,12 +188,32 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         return phase + phiR - np.pi*0.25
 
     def Ampl(self, f, **kwargs):
+        """
+        Compute the amplitude of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the amplitude of, as in :py:data:`events`.
+        :return: GW amplitude for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         # In the restricted PN approach the amplitude is the same as for the Newtonian approximation, so this function is equivalent
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         amplitude = np.sqrt(5./24.) * (np.pi**(-2./3.)) * utils.clightGpc/kwargs['dL'] * (utils.GMsun_over_c3*kwargs['Mc'])**(5./6.) * (f**(-7./6.))
         return amplitude
     
     def tau_star(self, f, **kwargs):
+        """
+        Compute the time to coalescence (in seconds) as a function of frequency (in :math:`\\rm Hz`), given the events parameters.
+        
+        We use the expression in `arXiv:0907.0700 <https://arxiv.org/abs/0907.0700>`_ eq. (3.8b).
+        
+        :param numpy.ndarray f: Frequency grid on which the time to coalescence will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the time to coalescence of, as in :py:data:`events`.
+        :return: time to coalescence for the chosen events evaluated on the frequency grid, in seconds.
+        :rtype: numpy.ndarray
+        
+        """
         # We use the expression in arXiv:0907.0700 eq. (3.8b)
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         Mtot_sec = kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.))
@@ -175,9 +230,19 @@ class TaylorF2_RestrictedPN(WaveFormModel):
         return OverallFac*(t05 + t6 + t7)
     
     def fcut(self, **kwargs):
-        # The cut frequency of the waveform. This can be approximated as 2f_ISCO for inspiral only waveforms. The flag which_ISCO controls the expression of the ISCO to use:
-        # - if Schw is passed the Schwarzschild ISCO for a non-rotating final BH is used (depending only on Mc and eta)
-        # - if Kerr is passed the Kerr ISCO for a rotating final BH is computed (depending on Mc, eta and the spins), as in arXiv:2108.05861 (see in particular App. C). NOTE: this is pushing the validity of TaylorF2 to the limit, and is not the default option.
+        """
+        Compute the cut frequency of the waveform as a function of the events parameters, in :math:`\\rm Hz`.
+        
+        This can be approximated as 2 f_ISCO for inspiral only waveforms. The flag which_ISCO controls the expression of the ISCO to use:
+        
+            - if ``'Schw'`` is passed the Schwarzschild ISCO for a non-rotating final BH is used (depending only on ``'Mc'`` and ``'eta'``);
+            - if ``'Kerr'`` is passed the Kerr ISCO for a rotating final BH is computed (depending on ``'Mc'``, ``'eta'`` and the spins), as in `arXiv:2108.05861 <https://arxiv.org/abs/2108.05861>`_ (see in particular App. C). NOTE: this is pushing the validity of the model to the limit, and is not the default option.
+        
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the cut frequency of, as in :py:data:`events`.
+        :return: Cut frequency of the waveform for the chosen events, in :math:`\\rm Hz`.
+        :rtype: numpy.ndarray
+        
+        """
         if self.which_ISCO=='Schw':
             
             return self.fcutPar/(kwargs['Mc']/(kwargs['eta']**(3./5.)))

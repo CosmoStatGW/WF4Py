@@ -19,10 +19,26 @@ from .WFclass_definition import WaveFormModel
 ##############################################################################
 
 class IMRPhenomNSBH(WaveFormModel):
-    '''
+    """
     IMRPhenomNSBH waveform model
-    The inputs labelled as 1 refer to the BH (e.g. chi1z) and with 2 to the NS (e.g. Lambda2)
     
+    The inputs labelled as 1 refer to the BH (e.g. ``'chi1z'``) and with 2 to the NS (e.g. ``'Lambda2'``)
+    
+    Relevant references:
+        [1] `arXiv:1508.07250 <https://arxiv.org/abs/1508.07250>`_
+        
+        [2] `arXiv:1508.07253 <https://arxiv.org/abs/1508.07253>`_
+        
+        [3] `arXiv:1509.00512 <https://arxiv.org/abs/1509.00512>`_
+        
+        [4] `arXiv:1905.06011 <https://arxiv.org/abs/1905.06011>`_
+    
+    :param bool, optional verbose: Boolean specifying if the code has to print additional details during execution.
+    :param bool, optional returnMergerType: Boolean specifying if the kind of merger (disruptive or non disruptive) has to be returned. This is determined in the amplitude calculation.
+    :param kwargs: Optional arguments to be passed to the parent class :py:class:`WF4Py.waveform_models.WFclass_definition.WaveFormModel`.
+        
+    """
+    '''
     NOTE: In LAL, to compute the parameter xi_tide in arXiv:1509.00512 eq. (8), the roots are extracted.
           In python this would break the possibility to vectorise so, to circumvent the issue, we compute
           a grid of xi_tide as a function of the compactness, mass ratio and BH spin, and then use a 3D
@@ -33,6 +49,9 @@ class IMRPhenomNSBH(WaveFormModel):
     '''
     # All is taken from LALSimulation and arXiv:1508.07250, arXiv:1508.07253, arXiv:1509.00512, arXiv:1905.06011
     def __init__(self, verbose=True, returnMergerType=False, **kwargs):
+        """
+        Constructor method
+        """
         # returnMergerType can be used to output the type of merger, determined in the amplitude calculation
         
         # Dimensionless frequency (Mf) at which the inspiral phase switches to the intermediate phase
@@ -51,6 +70,15 @@ class IMRPhenomNSBH(WaveFormModel):
         self._make_xiTide_interpolator(res=200)
         
     def Phi(self, f, **kwargs):
+        """
+        Compute the phase of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the phase of, as in :py:data:`events`.
+        :return: GW phase for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         M = kwargs['Mc']/(kwargs['eta']**(3./5.))
         eta = kwargs['eta']
@@ -247,6 +275,15 @@ class IMRPhenomNSBH(WaveFormModel):
         return phis + np.where(fgrid <= self.fcutPar, - t0*(fgrid - fRef) - phiRef + np.pi +  tidal_phase, 0.)
         
     def Ampl(self, f, **kwargs):
+        """
+        Compute the amplitude of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the amplitude of, as in :py:data:`events`.
+        :return: GW amplitude for the chosen events evaluated on the frequency grid. If ``self.returnMergerType=True`` this function also outputs the merger type as an array of strings.
+        :rtype: numpy.ndarray or tuple(numpy.ndarray, numpy.ndarray)
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # Useful quantities
         M = kwargs['Mc']/(kwargs['eta']**(3./5.))
@@ -448,6 +485,16 @@ class IMRPhenomNSBH(WaveFormModel):
             return Overallamp*amplitudeIMR, merger_type
     
     def _radiatednrg(self, eta, chi1, chi2):
+        """
+        Compute the total radiated energy, as in `arXiv:1508.07250 <https://arxiv.org/abs/1508.07250>`_ eq. (3.7) and (3.8).
+        
+        :param numpy.ndarray or float eta: Symmetric mass ratio of the objects.
+        :param numpy.ndarray or float chi1: Spin of the primary object.
+        :param numpy.ndarray or float chi2: Spin of the secondary object.
+        :return: Total energy radiated by the system.
+        :rtype: numpy.ndarray or float
+        
+        """
         # Predict the total radiated energy, from arXiv:1508.07250 eq (3.7) and (3.8)
         Seta = np.sqrt(1.0 - 4.0*eta)
         m1 = 0.5 * (1.0 + Seta)
@@ -459,6 +506,17 @@ class IMRPhenomNSBH(WaveFormModel):
         return (EradNS * (1. + (-0.0030302335878845507 - 2.0066110851351073 * eta + 7.7050567802399215 * eta*eta) * s)) / (1. + (-0.6714403054720589 - 1.4756929437702908 * eta + 7.304676214885011 * eta*eta) * s)
     
     def tau_star(self, f, **kwargs):
+        """
+        Compute the time to coalescence (in seconds) as a function of frequency (in :math:`\\rm Hz`), given the events parameters.
+        
+        We use the expression in `arXiv:0907.0700 <https://arxiv.org/abs/0907.0700>`_ eq. (3.8b).
+        
+        :param numpy.ndarray f: Frequency grid on which the time to coalescence will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the time to coalescence of, as in :py:data:`events`.
+        :return: time to coalescence for the chosen events evaluated on the frequency grid, in seconds.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # For complex waveforms we use the expression in arXiv:0907.0700 eq. (3.8b)
         Mtot_sec = kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.))
@@ -475,17 +533,37 @@ class IMRPhenomNSBH(WaveFormModel):
         return OverallFac*(t05 + t6 + t7)
     
     def fcut(self, **kwargs):
+        """
+        Compute the cut frequency of the waveform as a function of the events parameters, in :math:`\\rm Hz`.
+        
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the cut frequency of, as in :py:data:`events`.
+        :return: Cut frequency of the waveform for the chosen events, in :math:`\\rm Hz`.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         return self.fcutPar/(kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.)))
     
     def _tabulate_xiTide(self, res=200, store=True, Compmin=.1, qmax=100.):
-        '''
-        The ranges are chosen to cover LAL's tuning range:
-            - Compactness in [0.1, 0.5] (LAL is tuned up to Lambda=5000, corresponding to C = 0.109);
-            - mass ratio, q, in [1, 100];
-            - chi_BH in [-1, 1].
-        They can easily be changed if needed
-        '''
+        """
+        Tabulate the the parameter :math:`\\xi_{\\rm tide}` in `arXiv:1509.00512 <https://arxiv.org/abs/1509.00512>`_ eq. (8) as a function of the NS compactness, the binary mass ratio and BH spin.
+        
+        The default ranges are chosen to cover ``LAL`` 's tuning range:
+        
+            - Compactness in :math:`[0.1,\, 0.5]` (``LAL`` is tuned up to :math:`\Lambda=5000`, corresponding to :math:`{\cal C}=0.109`), in *natural units*;
+            - mass ratio, :math:`q=m_1/m_2`, in :math:`[1,\, 100]`;
+            - chi_BH in :math:`[-1,\, 1]`.
+            
+        They can easily be changed if needed.
+        
+        :param int, optional res: Resolution of the grid in the three parameters.
+        :param bool, optional store: Boolean specifying if to store or not the computed grid.
+        :param float, optional Compmin: Minimum of the compactenss grid. The maximum is 0.5, corresponding to the compactness of a BH.
+        :param float, optional qmax: Maximum of the mass ratio :math:`q = m_1/m_2 \geq 1`. The minimum is set to 1.
+        :return: The :math:`\\xi_{\\rm tide}` tabulated grid, the used compacteness grid, mass ratio grid, and spin grid.
+        :rtype: tuple(numpy.ndarray, numpy.ndarray, numpy.ndarray, numpy.ndarray)
+        
+        """
         Compgrid = np.linspace(Compmin, .5, res)
         qgrid = np.linspace(1., qmax, res)
         chigrid = np.linspace(-1.,1.,res)
@@ -526,7 +604,12 @@ class IMRPhenomNSBH(WaveFormModel):
         return xires, Compgrid, qgrid, chigrid
 
     def _make_xiTide_interpolator(self, res=200):
-
+        """
+        Load the table of the parameter :math:`\\xi_{\\rm tide}` if present or computes it if not, and builds the needed 3-D interpolator.
+        
+        :param int, optional res: Resolution of the grid in compactness, mass ratio and spin.
+        
+        """
         from scipy.interpolate import RegularGridInterpolator
         
         if self.path_xiTide_tab is not None:

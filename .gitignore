@@ -5,3 +5,5 @@ __pycache__
 .DS_Store
 __pycache__/PyWF.cpython-38.pyc
 __pycache__/WFutils.cpython-38.pyc
+
+docs/build/

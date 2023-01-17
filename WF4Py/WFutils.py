@@ -14,32 +14,101 @@ import os
 ##############################################################################
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-WFfilesPATH = os.path.join(SCRIPT_DIR, 'WFfiles')
+"""
+Path to the ``WF4Py`` directory.
 
+:type: str
+"""
+WFfilesPATH = os.path.join(SCRIPT_DIR, 'WFfiles')
+"""
+Path to the ``WF4Py/WFfiles`` directory, containing files needed for the waveform evaluation.
+
+:type: str
+"""
 ##############################################################################
 # PHYSICAL CONSTANTS
 ##############################################################################
 # See http://asa.hmnao.com/static/files/2021/Astronomical_Constants_2021.pdf
 
 GMsun_over_c3 = 4.925491025543575903411922162094833998e-6 # seconds
+"""
+Geometrized solar mass :math:`G \, {\\rm M}_{\odot} / c^3`, in seconds (:math:`\\rm s`).
+
+:type: float
+"""
 GMsun_over_c2 = 1.476625061404649406193430731479084713e3 # meters
+"""
+Geometrized solar mass :math:`G \, {\\rm M}_{\odot} / c^2`, in meters (:math:`\\rm m`).
+
+:type: float
+"""
 uGpc = 3.085677581491367278913937957796471611e25 # meters
+"""
+Gigaparsec (:math:`\\rm Gpc`) in meters (:math:`\\rm m`).
+
+:type: float
+"""
+uMsun = 1.988409902147041637325262574352366540e30 # kg
+"""
+Solar mass (:math:`{\\rm M}_{\odot}`) in kilograms (:math:`\\rm kg`).
+
+:type: float
+"""
 GMsun_over_c2_Gpc = GMsun_over_c2/uGpc # Gpc
+"""
+Geometrized solar mass :math:`G \, {\\rm M}_{\odot} / c^2`, in gigaparsec (:math:`\\rm Gpc`).
 
+:type: float
+"""
 REarth = 6371.00 #km
-        
+"""
+Average Earth radius, in kilometers (:math:`\\rm km`).
+
+:type: float
+"""
 clight = 2.99792458*(10**5) #km/s
+"""
+Speed of light in vacuum (:math:`c`), in kilometers per second (:math:`\\rm km / s`).
+
+:type: float
+"""
 clightGpc = clight/3.0856778570831e+22
+"""
+Speed of light in vacuum (:math:`c`), in gigaparsecs per second (:math:`\\rm Gpc / s`).
 
+:type: float
+"""
 
+# ISCO frequency coefficient for a Schwarzschild BH
 f_isco=1./(np.sqrt(6.)*6.*2.*np.pi*GMsun_over_c3)
+"""
+ISCO frequency coefficient for a Schwarzschild BH, in :math:`\\rm Hz`.
+
+:type: float
+"""
+# limit of the quasi-Keplerian approximation, as in arXiv:2108.05861 (see also arXiv:1605.00304), more conservative than the Schwarzschild ISCO
+f_qK = 2585. # Hz
+"""
+Coefficient for the limit of the quasi-Keplerian approximation, in :math:`\\rm Hz`, as in `arXiv:2108.05861 <https://arxiv.org/abs/2108.05861>`_ (see also `arXiv:1605.00304 <https://arxiv.org/abs/1605.00304>`_). This is more conservative than two times the Schwarzschild ISCO.
+
+:type: float
+"""
 
 ##############################################################################
 # TIDAL PARAMETERS
 ##############################################################################
 
 def Lamt_delLam_from_Lam12(Lambda1, Lambda2, eta):
-    # Returns the dimensionless tidal deformability parameters Lambda_tilde and delta_Lambda as defined in PhysRevD.89.103012 eq. (5) and (6), as a function of the dimensionless tidal deformabilities of the two objects and the symmetric mass ratio
+    """
+    Compute the dimensionless tidal deformability combinations :math:`\\tilde{\Lambda}` and :math:`\delta\\tilde{\Lambda}`, defined in `arXiv:1402.5156 <https://arxiv.org/abs/1402.5156>`_ eq. (5) and (6), as a function of the dimensionless tidal deformabilities of the two objects and the symmetric mass ratio.
+    
+    :param numpy.ndarray or float Lambda1: Tidal deformability of object 1, :math:`\Lambda_1`.
+    :param numpy.ndarray or float Lambda2: Tidal deformability of object 2, :math:`\Lambda_2`.
+    :param numpy.ndarray or float eta: The symmetric mass ratio(s), :math:`\eta`, of the objects.
+    :return: :math:`\\tilde{\Lambda}` and :math:`\delta\\tilde{\Lambda}`.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray) or tuple(float, float)
+    
+    """
     eta2 = eta*eta
     # This is needed to stabilize JAX derivatives
     Seta = np.sqrt(np.where(eta<0.25, 1.0 - 4.0*eta, 0.))
@@ -51,28 +120,82 @@ def Lamt_delLam_from_Lam12(Lambda1, Lambda2, eta):
     return Lamt, delLam
     
 def Lam12_from_Lamt_delLam(Lamt, delLam, eta):
-        # inversion of Wade et al, PhysRevD.89.103012, eq. (5) and (6)
-        eta2 = eta*eta
-        Seta = np.sqrt(np.where(eta<0.25, 1.0 - 4.0*eta, 0.))
-        
-        mLp=(8./13.)*(1.+ 7.*eta-31.*eta2)
-        mLm=(8./13.)*Seta*(1.+ 9.*eta-11.*eta2)
-        mdp=Seta*(1.-(13272./1319.)*eta+(8944./1319.)*eta2)*0.5
-        mdm=(1.-(15910./1319.)*eta+(32850./1319.)*eta2+(3380./1319.)*(eta2*eta))*0.5
+    """
+    Compute the dimensionless tidal deformabilities of the two objects as a function of the dimensionless tidal deformability combinations :math:`\\tilde{\Lambda}` and :math:`\delta\\tilde{\Lambda}`, defined in `arXiv:1402.5156 <https://arxiv.org/abs/1402.5156>`_ eq. (5) and (6), and the symmetric mass ratio.
+    
+    :param numpy.ndarray or float Lamt: Tidal deformability combination :math:`\\tilde{\Lambda}`.
+    :param numpy.ndarray or float delLam: Tidal deformability combination :math:`\delta\\tilde{\Lambda}`.
+    :param numpy.ndarray or float eta: The symmetric mass ratio(s), :math:`\eta`, of the objects.
+    :return: :math:`\Lambda_1` and :math:`\Lambda_2`.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray) or tuple(float, float)
+    
+    """
+    eta2 = eta*eta
+    Seta = np.sqrt(np.where(eta<0.25, 1.0 - 4.0*eta, 0.))
+    
+    mLp=(8./13.)*(1.+ 7.*eta-31.*eta2)
+    mLm=(8./13.)*Seta*(1.+ 9.*eta-11.*eta2)
+    mdp=Seta*(1.-(13272./1319.)*eta+(8944./1319.)*eta2)*0.5
+    mdm=(1.-(15910./1319.)*eta+(32850./1319.)*eta2+(3380./1319.)*(eta2*eta))*0.5
 
-        det=(306656./1319.)*(eta**5)-(5936./1319.)*(eta**4)
+    det=(306656./1319.)*(eta**5)-(5936./1319.)*(eta**4)
 
-        Lambda1 = ((mdp-mdm)*Lamt+(mLm-mLp)*delLam)/det
-        Lambda2 = ((-mdm-mdp)*Lamt+(mLm+mLp)*delLam)/det
-        
-        return Lambda1, Lambda2
+    Lambda1 = ((mdp-mdm)*Lamt+(mLm-mLp)*delLam)/det
+    Lambda2 = ((-mdm-mdp)*Lamt+(mLm+mLp)*delLam)/det
+    
+    return Lambda1, Lambda2
 
+##############################################################################
+# MASSES
+##############################################################################
 
+def m1m2_from_Mceta(Mc, eta):
+    """
+    Compute the component masses of a binary given its chirp mass and symmetric mass ratio.
+    
+    :param numpy.ndarray or float Mc: Chirp mass of the binary, :math:`{\cal M}_c`.
+    :param numpy.ndarray or float eta: The symmetric mass ratio(s), :math:`\eta`, of the objects.
+    :return: :math:`m_1` and :math:`m_2`.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray) or tuple(float, float)
+    
+    """
+    Seta = np.sqrt(np.where(eta<0.25, 1.0 - 4.0*eta, 0.))
+    m1 = 0.5*(Mc/(eta**(3./5.)))*(1. + Seta)
+    m2 = 0.5*(Mc/(eta**(3./5.)))*(1. - Seta)
+
+    return m1, m2
+    
+def Mceta_from_m1m2(m1, m2):
+    """
+    Compute the chirp mass and symmetric mass ratio of a binary given its component masses.
+    
+    :param numpy.ndarray or float m1: Mass of the primary object, :math:`m_1`.
+    :param numpy.ndarray or float m2: Mass of the secondary object, :math:`m_2`.
+    :return: :math:`{\cal M}_c` and :math:`\eta`.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray) or tuple(float, float)
+    
+    """
+    Mc  = ((m1*m2)**(3./5.))/((m1+m2)**(1./5.))
+    eta = (m1*m2)/((m1+m2)*(m1+m2))
+    
+    return Mc, eta
+    
 ##############################################################################
 # SPHERICAL HARMONICS
 ##############################################################################
 
 def Add_Higher_Modes(Ampl, Phi, iota, phi=0.):
+    """
+    Compute the total signal from a collection of different modes.
+    
+    :param dict(numpy.ndarray, numpy.ndarray, ...) Ampl: Dictionary containing the amplitudes for each mode computed on a grid of frequencies. The keys are expected to be stings made up of :math:`l` and :math:`m`, e.g. for :math:`(2,2)` --> key= ``'22'``.
+    :param dict(numpy.ndarray, numpy.ndarray, ...) Phi: Dictionary containing the phases for each mode computed on a grid of frequencies.
+    :param numpy.ndarray or float iota: The inclination angle(s) of the system(s) with respect to orbital angular momentum, :math:`\iota`, in :math:`\\rm rad`.
+    :param numpy.ndarray or float phi: The second angular direction of the spherical coordinate system.
+    :return: Plus and cross polarisations of the GW for the chosen events evaluated on the frequency grid.
+    :rtype: tuple(numpy.ndarray, numpy.ndarray)
+    
+    """
     # Function to compute the total signal from a collection of different modes
     # Ampl and Phi have to be dictionaries containing the amplitudes and phases, computed on a grid of frequencies, for
     # each mode. The keys are expected to be stings made up of l and m, e.g. for (2,2) -> key='22'
@@ -163,7 +286,14 @@ def Add_Higher_Modes(Ampl, Phi, iota, phi=0.):
 # OTHERS
 ##############################################################################
 
-def check_evparams(evParams, checktidal=False, checkiota=False):
+def check_evparams(evParams, checktidal=False):
+    """
+    Check the format of the events parameters and make the needed conversions.
+    
+    :param dict(numpy.ndarray, numpy.ndarray, ...) evParams: Dictionary containing the parameters of the event(s), as in :py:data:`events`.
+    :param bool, optional checktidal: Boolean specifying if the tidal parameters have to be included in the checks.
+    
+    """
     # Function to check the format and limits of the events' parameters and make the needed conversions
     try:
         evParams['dL']

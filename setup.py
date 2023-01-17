@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name='WF4Py',
-    version='1.0.0',
+    version='1.1.0',
     author='Francesco Iacovelli',
     author_email='francesco.iacovelli@unige.ch',
     description='Gravitational waves waveform models in pure Python language',

@@ -17,11 +17,36 @@ from .WFclass_definition import WaveFormModel
 ##############################################################################
 
 class IMRPhenomXAS(WaveFormModel):
-    '''
-    IMRPhenomXAS waveform model
-    '''
+    """
+    IMRPhenomXAS waveform model.
+    
+    Relevant references: `arXiv:2001.11412 <https://arxiv.org/abs/2001.11412>`_
+    
+    :param int, optional InsPhaseVersion: Int specifying the *inspiral phase* model to use
+    
+        - ``104`` **(default)**: Canonical TaylorF2 at 3.5PN (including cubic-in-spin and quadratic-in-spin corrections) with 4 pseudo-PN coefficients;
+        - ``105``: Canonical TaylorF2 at 3.5PN (including cubic-in-spin and quadratic-in-spin corrections) with 5 pseudo-PN coefficients;
+        - ``114``: Extended TaylorF2 (including cubic-in-spin, quadratic-in-spin corrections, 4PN and 4.5PN orbital corrections) with 4 pseudo-PN coefficients;
+        - ``115``: Extended TaylorF2 (including cubic-in-spin, quadratic-in-spin corrections, 4PN and 4.5PN orbital corrections) with 5 pseudo-PN coefficients
+    
+    :param int, optional IntPhaseVersion: Int specifying the *intermediate phase* model to use
+    
+        - ``104``: 4th order polynomial;
+        - ``105`` **(default)**: 5th order polynomial.
+    
+    :param int, optional IntAmpVersion: Int specifying the *intermediate amplitude* model to use
+    
+        - ``104`` **(default)**: 4th order polynomial, less accurate in calibration but more stable extrapolation;
+        - ``105``: 5th order polynomial, more accurate in calibration but less stable extrapolation.
+        
+    :param kwargs: Optional arguments to be passed to the parent class :py:class:`WF4Py.waveform_models.WFclass_definition.WaveFormModel`.
+        
+    """
     # All is taken from LALSimulation and arXiv:2001.11412
     def __init__(self, InsPhaseVersion=104, IntPhaseVersion=105, IntAmpVersion=104, **kwargs):
+        """
+        Constructor method
+        """
         # Dimensionless frequency (Mf) at which we define the end of the waveform
         fcutPar = 0.3
         # Version of the inspiral phase to be used
@@ -34,6 +59,15 @@ class IMRPhenomXAS(WaveFormModel):
         super().__init__('BBH', fcutPar, **kwargs)
           
     def Phi(self, f, **kwargs):
+        """
+        Compute the phase of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the phase of, as in :py:data:`events`.
+        :return: GW phase for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # Useful quantities
         M = kwargs['Mc']/(kwargs['eta']**(3./5.))
@@ -489,6 +523,15 @@ class IMRPhenomXAS(WaveFormModel):
         return phis
     
     def Ampl(self, f, **kwargs):
+        """
+        Compute the amplitude of the GW as a function of frequency, given the events parameters.
+        
+        :param numpy.ndarray f: Frequency grid on which the phase will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the amplitude of, as in :py:data:`events`.
+        :return: GW amplitude for the chosen events evaluated on the frequency grid.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # Useful quantities
         M = kwargs['Mc']/(kwargs['eta']**(3./5.))
@@ -764,6 +807,17 @@ class IMRPhenomXAS(WaveFormModel):
         return Overallamp * amplitudeIMR * (fgrid**(-7./6.))
         
     def tau_star(self, f, **kwargs):
+        """
+        Compute the time to coalescence (in seconds) as a function of frequency (in :math:`\\rm Hz`), given the events parameters.
+        
+        We use the expression in `arXiv:0907.0700 <https://arxiv.org/abs/0907.0700>`_ eq. (3.8b).
+        
+        :param numpy.ndarray f: Frequency grid on which the time to coalescence will be computed, in :math:`\\rm Hz`.
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the time to coalescence of, as in :py:data:`events`.
+        :return: time to coalescence for the chosen events evaluated on the frequency grid, in seconds.
+        :rtype: numpy.ndarray
+        
+        """
         utils.check_evparams(kwargs, checktidal=self.is_tidal)
         # For complex waveforms we use the expression in arXiv:0907.0700 eq. (3.8b)
         Mtot_sec = kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.))
@@ -780,5 +834,12 @@ class IMRPhenomXAS(WaveFormModel):
         return OverallFac*(t05 + t6 + t7)
     
     def fcut(self, **kwargs):
+        """
+        Compute the cut frequency of the waveform as a function of the events parameters, in :math:`\\rm Hz`.
         
+        :param dict(numpy.ndarray, numpy.ndarray, ...) kwargs: Dictionary with arrays containing the parameters of the events to compute the cut frequency of, as in :py:data:`events`.
+        :return: Cut frequency of the waveform for the chosen events, in :math:`\\rm Hz`.
+        :rtype: numpy.ndarray
+        
+        """
         return self.fcutPar/(kwargs['Mc']*utils.GMsun_over_c3/(kwargs['eta']**(3./5.)))
